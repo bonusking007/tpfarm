@@ -4339,6 +4339,16 @@ UtilitiesSec:AddButton("reset",function()
     game.Players.LocalPlayer.Character.Humanoid.Health = 0
 end)
 
+UtilitiesSec:AddButton("no jump",function()
+    game.Players.LocalPlayer.Character.Humanoid.JumpPower = 0
+end)
+
+UtilitiesSec:AddButton("kys",function()
+    while wait(0.5) do
+        game.Players.LocalPlayer.Character.Humanoid.PlatformStand = true
+        end
+end)
+
 UtilitiesSec:AddButton("Boxcover",function()
     local baseplate = Instance.new("Part")
     baseplate.Parent = workspace
