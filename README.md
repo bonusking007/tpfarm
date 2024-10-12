@@ -4276,6 +4276,24 @@ UtilitiesSec:AddButton("spawn",function()
     end
 end)
 
+UtilitiesSec:AddButton("antiafk",function()
+    local player = game.Players.LocalPlayer
+local userInputService = game:GetService("UserInputService")
+
+-- Function to simulate mouse movement
+local function antiAFK()
+    while true do
+        -- Move the mouse a little to simulate activity
+        userInputService:MouseMove(1, 0)
+        wait(5) -- Wait for 5 seconds before moving again
+    end
+end
+
+-- Start the anti-AFK loop
+antiAFK()
+
+end)
+
 UtilitiesSec:AddButton("boostfps",function()
     local ToDisable = {
         Textures = true,
