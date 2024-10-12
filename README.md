@@ -3803,13 +3803,13 @@ MovementTab:AddSlider("Height", 1,0,20,100, function(State)
     heighttargetlol = State
 end)
 
-local FlightBindxdxd = MovementTab:AddToggle("Flight", false, function(parameter)
+local FlightBindxdxd = MovementTab:AddToggle("Flight", true, function(parameter)
     if parameter then
         FlyLoop = game:GetService("RunService").Stepped:Connect(function()
             spawn(function()
                 pcall(function()
                     local speed = FlySpeed
-                    local velocity = Vector3.new(0, 3, 0)
+                    local velocity = Vector3.new(0, 7, 0)
                     local UserInputService = game:GetService("UserInputService")
     
                     if UserInputService:IsKeyDown(Enum.KeyCode.W) then
@@ -4130,26 +4130,93 @@ spawn(function()
     end)
 end)
 
-UtilitiesSec:AddButton("FARN ON",function()
+UtilitiesSec:AddButton("FARM 1",function()
+    local function createCirclePart()
+        local part = Instance.new("Part") -- Create a new Part
+        part.Name = "Bonus" -- Set the name of the part
+        part.Size = Vector3.new(1, 1, 1) -- Set the size (smaller than a player's head)
+        part.Shape = Enum.PartType.Cylinder -- Set the shape to Cylinder to make it circular
+        part.Color = Color3.new(1, 1, 0) -- Set color to yellow (change as needed)
+        part.Anchored = true -- Make sure the part doesn't fall
+        part.CanCollide = false -- Prevent it from blocking movement
+        part.Position = Vector3.new(0.8385264873504639, -200.213294982910156, -33.203948974609375) -- Set the position
+    
+        part.Parent = workspace -- Parent the part to the Workspace
+    
+        -- Create a Highlight object
+        local highlight = Instance.new("Highlight")
+        highlight.Parent = part -- Parent the highlight to the part
+        highlight.FillColor = Color3.new(1, 1, 0) -- Highlight color (yellow)
+        highlight.OutlineColor = Color3.new(1, 0, 0) -- Outline color (red, change as needed)
+        highlight.FillTransparency = 0.5 -- Adjust fill transparency (0 for solid, 1 for invisible)
+        highlight.OutlineTransparency = 0 -- Set outline transparency (0 for visible, 1 for invisible)
+    end
+    
+    createCirclePart()    
+end)
+
+UtilitiesSec:AddButton("FARM 2",function()
     local player = game.Players.LocalPlayer
-local targetCFrame = CFrame.new(7.8809042, -114.046158, 3988.00903, 0.999975383, -3.40917055e-08, -0.00701921014, 3.42351036e-08, 1, 2.03091801e-08, 0.00701921014, -2.0548983e-08, 0.999975383)
 
-local teleportEnabled = true  -- Set to true to enable teleportation, false to disable
+local function setYPosition(character)
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+    local newY = -200 -- Desired Y position
 
--- Function to teleport the player
-local function teleportPlayer()
-    if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-        player.Character.HumanoidRootPart.CFrame = targetCFrame
+    while character and character:FindFirstChild("HumanoidRootPart") do
+        -- Continuously set the Y position to newY while the character exists
+        humanoidRootPart.CFrame = CFrame.new(humanoidRootPart.Position.X, newY, humanoidRootPart.Position.Z)
+        wait(0.1) -- Small delay to prevent overloading
     end
 end
 
--- Teleport loop, runs only if teleportEnabled is true
-while true do
-    if teleportEnabled then
-        teleportPlayer()
+-- Listen for character respawn
+player.CharacterAdded:Connect(function(newCharacter)
+    setYPosition(newCharacter)
+end)
+
+-- Initial character setup
+local initialCharacter = player.Character or player.CharacterAdded:Wait()
+setYPosition(initialCharacter)
+end)
+
+UtilitiesSec:AddButton("FARM 3",function()
+    local player = game.Players.LocalPlayer
+local speed = 70 -- Set speed to 70
+local moving = true -- Set this to true to start moving
+
+-- Function to move towards the Bonus part
+local function moveToBonusPart()
+    while wait(0.1) do
+        local character = player.Character or player.CharacterAdded:Wait() -- Wait for character to load
+        local targetPart = workspace:FindFirstChild("Bonus") -- Get the part named "Bonus"
+
+        if targetPart and moving and character:FindFirstChild("HumanoidRootPart") then
+            local targetPosition = targetPart.Position
+            local characterPosition = character.HumanoidRootPart.Position
+            
+            -- Calculate the direction and new position
+            local direction = (targetPosition - characterPosition).unit
+            local newPosition = characterPosition + (direction * speed * 0.1) -- Move based on speed
+            
+            -- Update the character's position
+            character:SetPrimaryPartCFrame(CFrame.new(newPosition))
+        end
     end
-    task.wait(1)  -- Adjust the wait time to control teleport frequency
 end
+
+-- Function to handle player respawn
+local function onPlayerRespawn()
+    wait(1) -- Wait for the character to fully load
+    moveToBonusPart() -- Restart the movement loop
+end
+
+-- Start the movement loop when the script runs for the first time
+moveToBonusPart()
+
+-- Connect to the Player's CharacterAdded event to handle respawn
+player.CharacterAdded:Connect(onPlayerRespawn)
+    
+
 end)
 
 UtilitiesSec:AddButton("reset60sec",function()
@@ -4166,7 +4233,7 @@ end
 end)
 
 UtilitiesSec:AddButton("spawn",function()
-    while wait(0.4) do
+    while wait(0.5) do
         game:GetService("VirtualInputManager"):SendKeyEvent(true,Enum.KeyCode.Space,false,game) 
     end
 end)
@@ -4335,38 +4402,216 @@ loopCheckAndEquipBaton()
 
 end)
 
-UtilitiesSec:AddButton("reset",function()
-    game.Players.LocalPlayer.Character.Humanoid.Health = 0
+UtilitiesSec:AddButton("Showstats",function()
+    local player = game.Players.LocalPlayer
+local UserInputService = game:GetService("UserInputService")
+
+local screenGui
+local backgroundFrame
+local isGuiVisible = true -- To track the visibility of the GUI
+
+-- Function to create GUI elements
+local function createGui()
+    -- Create ScreenGui
+    screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "GameInfoGui"
+    screenGui.Parent = player:WaitForChild("PlayerGui")
+
+    -- Create a black background frame
+    backgroundFrame = Instance.new("Frame")
+    backgroundFrame.Size = UDim2.new(1, 0, 1, 0) -- Fullscreen
+    backgroundFrame.Position = UDim2.new(0, 0, 0, 0) -- Top-left corner
+    backgroundFrame.BackgroundColor3 = Color3.new(0, 0, 0) -- Black background
+    backgroundFrame.BackgroundTransparency = 0 -- Opaque
+    backgroundFrame.Parent = screenGui
+
+    -- Red Color
+    local redColor = Color3.new(1, 0, 0) -- RGB for red
+
+    -- Score Label
+    local scoreLabel = Instance.new("TextLabel")
+    scoreLabel.Size = UDim2.new(0, 300, 0, 50) -- Width and Height of the label
+    scoreLabel.Position = UDim2.new(0.5, -150, 0.4, -25) -- Position it near the top
+    scoreLabel.TextColor3 = redColor -- Red text color
+    scoreLabel.BackgroundColor3 = Color3.new(0, 0, 0) -- Black background
+    scoreLabel.BackgroundTransparency = 1 -- Transparent background
+    scoreLabel.TextScaled = true -- Scale text to fit the label
+    scoreLabel.Parent = screenGui
+
+    -- Credits Label
+    local creditsLabel = Instance.new("TextLabel")
+    creditsLabel.Size = UDim2.new(0, 300, 0, 50) -- Width and Height of the label
+    creditsLabel.Position = UDim2.new(0.5, -150, 0.5, -25) -- Center the label on the screen
+    creditsLabel.TextColor3 = redColor -- Red text color
+    creditsLabel.BackgroundColor3 = Color3.new(0, 0, 0) -- Black background
+    creditsLabel.BackgroundTransparency = 1 -- Transparent background
+    creditsLabel.TextScaled = true -- Scale text to fit the label
+    creditsLabel.Parent = screenGui
+
+    -- Aether Label
+    local aetherLabel = Instance.new("TextLabel")
+    aetherLabel.Size = UDim2.new(0, 300, 0, 50) -- Width and Height of the label
+    aetherLabel.Position = UDim2.new(0.5, -150, 0.6, -25) -- Position it below the credits label
+    aetherLabel.TextColor3 = redColor -- Red text color
+    aetherLabel.BackgroundColor3 = Color3.new(0, 0, 0) -- Black background
+    aetherLabel.BackgroundTransparency = 1 -- Transparent background
+    aetherLabel.TextScaled = true -- Scale text to fit the label
+    aetherLabel.Parent = screenGui
+
+    -- Function to update the score display
+    local function updateScoreDisplay()
+        while true do
+            local scoreValue = player:WaitForChild("leaderstats"):FindFirstChild("Score")
+            if scoreValue then
+                scoreLabel.Text = "Score: " .. scoreValue.Value -- Display the score value
+            else
+                scoreLabel.Text = "Score: 0" -- Display 0 if score doesn't exist
+            end
+            wait(1) -- Update every second
+        end
+    end
+
+    -- Function to update the credits display
+    local function updateCreditsDisplay()
+        while true do
+            local creditsDisplay = player:WaitForChild("PlayerGui"):WaitForChild("RoactUI"):WaitForChild("MainMenu")
+            local creditsButton = creditsDisplay:FindFirstChild("BottomRightView")
+            if creditsButton and creditsButton:FindFirstChild("ItemsFrameContainer") and 
+               creditsButton.ItemsFrameContainer:FindFirstChild("CreditsDisplayButton") then
+                local amountTextFrame = creditsButton.ItemsFrameContainer.CreditsDisplayButton.Button:FindFirstChild("TextFrameContainer"):FindFirstChild("Amount")
+                if amountTextFrame and amountTextFrame:IsA("TextLabel") then
+                    creditsLabel.Text = "Credits: " .. amountTextFrame.Text -- Display the credits value
+                else
+                    creditsLabel.Text = "Credits: 0" -- Display 0 if credits text doesn't exist or isn't a TextLabel
+                end
+            else
+                creditsLabel.Text = "Credits: 0" -- Display 0 if credits button or path doesn't exist
+            end
+            wait(1) -- Update every second
+        end
+    end
+
+    -- Function to update the Aether display
+    local function updateAetherDisplay()
+        while true do
+            local aetherDisplay = player:WaitForChild("PlayerGui"):WaitForChild("RoactUI"):WaitForChild("MainMenu")
+            local aetherButton = aetherDisplay:FindFirstChild("BottomRightView")
+            if aetherButton and aetherButton:FindFirstChild("ItemsFrameContainer") and 
+               aetherButton.ItemsFrameContainer:FindFirstChild("AetherDisplayButton") then
+                local amountTextFrame = aetherButton.ItemsFrameContainer.AetherDisplayButton.Button:FindFirstChild("TextFrameContainer"):FindFirstChild("Amount")
+                if amountTextFrame and amountTextFrame:IsA("TextLabel") then
+                    aetherLabel.Text = "Aether: " .. amountTextFrame.Text -- Display the Aether value
+                else
+                    aetherLabel.Text = "Aether: 0" -- Display 0 if Aether text doesn't exist or isn't a TextLabel
+                end
+            else
+                aetherLabel.Text = "Aether: 0" -- Display 0 if Aether button or path doesn't exist
+            end
+            wait(1) -- Update every second
+        end
+    end
+
+    -- Start updating the score, credits, and Aether
+    coroutine.wrap(updateScoreDisplay)()
+    coroutine.wrap(updateCreditsDisplay)()
+    coroutine.wrap(updateAetherDisplay)()
+end
+
+-- Function to connect to character added event
+local function onCharacterAdded(character)
+    -- Recreate GUI when character respawns
+    createGui()
+end
+
+-- Function to toggle GUI visibility
+local function toggleGui()
+    isGuiVisible = not isGuiVisible -- Toggle visibility state
+    screenGui.Enabled = isGuiVisible -- Set the ScreenGui enabled state
+end
+
+-- Connect the CharacterAdded event to recreate the GUI
+player.CharacterAdded:Connect(onCharacterAdded)
+
+-- Create GUI for the first time if the character already exists
+if player.Character then
+    createGui()
+end
+
+-- Keybind to toggle GUI visibility (using the 'M' key)
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if not gameProcessed and input.KeyCode == Enum.KeyCode.M then
+        toggleGui()
+    end
+end)
+
+end)
+
+UtilitiesSec:AddButton("Stats on/off",function()
+    local VirtualInputManager = game:GetService("VirtualInputManager")
+
+-- Function to simulate pressing the 'M' key once
+local function pressM()
+    -- Simulate key down (press)
+    VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.M, false, game)
+
+    -- Simulate key up (release)
+    VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.M, false, game)
+end
+
+-- Call the function to press 'M'
+pressM()
+
 end)
 
 UtilitiesSec:AddButton("no jump",function()
-    game.Players.LocalPlayer.Character.Humanoid.JumpPower = 0
+    local player = game.Players.LocalPlayer
+local runService = game:GetService("RunService")
+
+-- Function to disable jumping by setting JumpPower to 0
+local function disableJump()
+    if player.Character and player.Character:FindFirstChild("Humanoid") then
+        player.Character.Humanoid.JumpPower = 0
+    end
+end
+
+-- Listen for character respawn and reapply JumpPower = 0
+player.CharacterAdded:Connect(function(character)
+    character:WaitForChild("Humanoid").JumpPower = 0  -- Apply when character respawns
 end)
 
-UtilitiesSec:AddButton("kys",function()
-    while wait(0.5) do
-        game.Players.LocalPlayer.Character.Humanoid.PlatformStand = true
-        end
+-- Connect to RenderStepped for continuous checking
+runService.RenderStepped:Connect(function()
+    disableJump()
 end)
 
-UtilitiesSec:AddButton("Boxcover",function()
-    local baseplate = Instance.new("Part")
-    baseplate.Parent = workspace
-    baseplate.Size = Vector3.new(1000, 10, 1000)
-    baseplate.Anchored = true
-    baseplate.Name = "Baseplate"
-    local desiredCFrame = CFrame.new(0.8385264873504639, -202.13294982910156, -33.203948974609375)
-    baseplate.Position = desiredCFrame.Position
 end)
 
 UtilitiesSec:AddButton("no ragdoll",function()
     local RunService = game:GetService("RunService")
 local player = game.Players.LocalPlayer
-local humanoid = player.Character:WaitForChild("Humanoid")
 
-RunService.RenderStepped:Connect(function()
-    humanoid.RagdollRemoteEvent:FireServer(false)
-end)
+local function onCharacterAdded(character)
+    local humanoid = character:WaitForChild("Humanoid", 10) -- Wait for Humanoid, timeout after 10 seconds
+
+    -- Make sure the humanoid exists before connecting to RenderStepped
+    if humanoid then
+        local ragdollEvent = humanoid:WaitForChild("RagdollRemoteEvent")
+
+        RunService.RenderStepped:Connect(function()
+            if humanoid and humanoid.Health > 0 then -- Check if humanoid is alive
+                ragdollEvent:FireServer(false)
+            end
+        end)
+    end
+end
+
+-- Connect the character added event to handle respawning
+player.CharacterAdded:Connect(onCharacterAdded)
+
+-- Check if the character is already present (for when the script first runs)
+if player.Character then
+    onCharacterAdded(player.Character)
+end
 end)
 
 UtilitiesSec:AddButton("whitescreen E",function()
@@ -4383,6 +4628,23 @@ game:GetService("UserInputService").InputBegan:Connect(function(input)
         toggle3DRendering()
     end
 end)
+end)
+
+UtilitiesSec:AddButton("White on/off",function()
+    local VirtualInputManager = game:GetService("VirtualInputManager")
+
+-- Function to simulate pressing the 'E' key once
+local function pressE()
+    -- Simulate key down (press)
+    VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.E, false, game)
+
+    -- Simulate key up (release)
+    VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.E, false, game)
+end
+
+-- Call the function to press 'E'
+pressE()
+
 end)
 
 UtilitiesSec:AddButton("rejoin",function()
