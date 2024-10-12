@@ -4219,6 +4219,44 @@ player.CharacterAdded:Connect(onPlayerRespawn)
 
 end)
 
+UtilitiesSec:AddButton("FARM 3 MAIN",function()
+    local player = game.Players.LocalPlayer
+    local speed = 40 -- Set speed to 70
+    local moving = true -- Set this to true to start moving
+    
+    -- Function to move towards the Bonus part
+    local function moveToBonusPart()
+        while wait(0.1) do
+            local character = player.Character or player.CharacterAdded:Wait() -- Wait for character to load
+            local targetPart = workspace:FindFirstChild("Bonus") -- Get the part named "Bonus"
+    
+            if targetPart and moving and character:FindFirstChild("HumanoidRootPart") then
+                local targetPosition = targetPart.Position
+                local characterPosition = character.HumanoidRootPart.Position
+                
+                -- Calculate the direction and new position
+                local direction = (targetPosition - characterPosition).unit
+                local newPosition = characterPosition + (direction * speed * 0.1) -- Move based on speed
+                
+                -- Update the character's position
+                character:SetPrimaryPartCFrame(CFrame.new(newPosition))
+            end
+        end
+    end
+    
+    -- Function to handle player respawn
+    local function onPlayerRespawn()
+        wait(1) -- Wait for the character to fully load
+        moveToBonusPart() -- Restart the movement loop
+    end
+    
+    -- Start the movement loop when the script runs for the first time
+    moveToBonusPart()
+    
+    -- Connect to the Player's CharacterAdded event to handle respawn
+    player.CharacterAdded:Connect(onPlayerRespawn)
+end)
+
 UtilitiesSec:AddButton("reset60sec",function()
     local player = game.Players.LocalPlayer
 
