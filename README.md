@@ -4148,13 +4148,13 @@ while true do
     if teleportEnabled then
         teleportPlayer()
     end
-    task.wait(0.3)  -- Adjust the wait time to control teleport frequency
+    task.wait(0.15)  -- Adjust the wait time to control teleport frequency
 end 
 end)
 
 UtilitiesSec:AddButton("MAIN TP",function()
     local player = game.Players.LocalPlayer
-local targetCFrame = CFrame.new(7.8809042, -114.046158, 3990.00903)
+local targetCFrame = CFrame.new(7.8809042, -114.046158, 3992.00903)
 
 local teleportEnabled = true  -- Set to true to enable teleportation, false to disable
 
@@ -4170,7 +4170,7 @@ while true do
     if teleportEnabled then
         teleportPlayer()
     end
-    task.wait(0.3)  -- Adjust the wait time to control teleport frequency
+    task.wait(0.15)  -- Adjust the wait time to control teleport frequency
 end 
 end)
 
@@ -4178,7 +4178,7 @@ UtilitiesSec:AddButton("Spin",function()
     local player = game.Players.LocalPlayer
 local runService = game:GetService("RunService")
 
-local spinSpeed = 1 -- Set the desired spin speed (degrees per frame)
+local spinSpeed = 10 -- Set the desired spin speed (degrees per frame)
 local spinning = false
 
 -- Function to handle spinning
@@ -4263,6 +4263,56 @@ end
 
 -- Start the anti-AFK loop
 antiAFK()
+
+end)
+
+UtilitiesSec:AddButton("Join main",function()
+    local player = game.Players.LocalPlayer
+
+local function checkAndSetText()
+    -- Try to find the TextBox
+    local success, textboxPath = pcall(function()
+        return player:WaitForChild("PlayerGui")
+            :WaitForChild("RoactUI")
+            :WaitForChild("MainMenuFrameOpenComponent")
+            :WaitForChild("Container")
+            :WaitForChild("BackdropFrame")
+            :WaitForChild("Frame")
+            :WaitForChild("TitleFrameContainer")
+            :WaitForChild("ContentsFrameContainer")
+            :WaitForChild("ContentsFrame")
+            :WaitForChild("ServerListFrame")
+            :WaitForChild("Frame")
+            :WaitForChild("ItemFrameContainer")
+            :WaitForChild("join")
+            :WaitForChild("SearchFrame")
+            :WaitForChild("InputBox")
+            :WaitForChild("Frame")
+            :WaitForChild("TextBox")
+    end)
+
+    if success and textboxPath then
+        -- Check if the TextBox has the word "GodJIbruh06"
+        if textboxPath.Text ~= "GodJIbruh06" then
+            -- Set the Text in the TextBox
+            textboxPath.Text = "GodJIbruh06"
+        else
+            -- If the word is already there, stop the function
+            return
+        end
+    end
+end
+
+-- Recheck every 1 second until the word is correct
+local function monitorText()
+    while true do
+        checkAndSetText()
+        task.wait(1)  -- Delay for optimization
+    end
+end
+
+-- Start the monitoring
+monitorText()
 
 end)
 
@@ -4407,7 +4457,7 @@ local function autoEquipBaton()
 
     if backpack then
         for _, item in ipairs(backpack:GetChildren()) do
-            if item:IsA("Tool") and item.Name == "Baton" then
+            if item:IsA("Tool") and item.Name == "Bo Staff" then
                 player.Character.Humanoid:EquipTool(item)
                 return true -- Return true if tool is found and equipped
             end
@@ -4427,6 +4477,22 @@ end
 
 -- Call the loopCheckAndEquipBaton function
 loopCheckAndEquipBaton()
+
+end)
+
+UtilitiesSec:AddButton("autoclick",function()
+    local clickInterval = 0.5 -- Time between clicks in seconds
+
+local function autoClick()
+    while true do
+        game:GetService("VirtualInputManager"):SendMouseButtonEvent(0, 0, 0, true, game, 1) -- Mouse button down
+        game:GetService("VirtualInputManager"):SendMouseButtonEvent(0, 0, 0, false, game, 1) -- Mouse button up
+        wait(clickInterval) -- Wait before the next click
+    end
+end
+
+-- Start auto-clicking immediately
+autoClick()
 
 end)
 
