@@ -3803,7 +3803,7 @@ MovementTab:AddSlider("Height", 1,0,20,100, function(State)
     heighttargetlol = State
 end)
 
-local FlightBindxdxd = MovementTab:AddToggle("Flight", true, function(parameter)
+local FlightBindxdxd = MovementTab:AddToggle("Flight", false, function(parameter)
     if parameter then
         FlyLoop = game:GetService("RunService").Stepped:Connect(function()
             spawn(function()
@@ -4130,9 +4130,31 @@ spawn(function()
     end)
 end)
 
-UtilitiesSec:AddButton("AUTOFARM",function()
+UtilitiesSec:AddButton("ALT TP",function()
     local player = game.Players.LocalPlayer
-local targetCFrame = CFrame.new(7.8809042, -114.046158, 3988.00903, 0.999975383, -3.40917055e-08, -0.00701921014, 3.42351036e-08, 1, 2.03091801e-08, 0.00701921014, -2.0548983e-08, 0.999975383)
+local targetCFrame = CFrame.new(7.8809042, -114.046158, 3988.00903)
+
+local teleportEnabled = true  -- Set to true to enable teleportation, false to disable
+
+-- Function to teleport the player
+local function teleportPlayer()
+    if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+        player.Character.HumanoidRootPart.CFrame = targetCFrame
+    end
+end
+
+-- Teleport loop, runs only if teleportEnabled is true
+while true do
+    if teleportEnabled then
+        teleportPlayer()
+    end
+    task.wait(0.3)  -- Adjust the wait time to control teleport frequency
+end 
+end)
+
+UtilitiesSec:AddButton("MAIN TP",function()
+    local player = game.Players.LocalPlayer
+local targetCFrame = CFrame.new(7.8809042, -114.046158, 3990.00903)
 
 local teleportEnabled = true  -- Set to true to enable teleportation, false to disable
 
@@ -4567,6 +4589,14 @@ end
 -- Call the function to press 'M'
 pressM()
 
+end)
+
+UtilitiesSec:AddButton("Remove junk",function()
+    local effectsJunkFolder = workspace:FindFirstChild("EffectsJunk")
+
+if effectsJunkFolder then
+    effectsJunkFolder:Destroy()
+end
 end)
 
 UtilitiesSec:AddButton("no jump",function()
