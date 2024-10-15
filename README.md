@@ -4130,143 +4130,93 @@ spawn(function()
     end)
 end)
 
-UtilitiesSec:AddButton("FARM 1",function()
-    local function createCirclePart()
-        local part = Instance.new("Part") -- Create a new Part
-        part.Name = "Bonus" -- Set the name of the part
-        part.Size = Vector3.new(1, 1, 1) -- Set the size (smaller than a player's head)
-        part.Shape = Enum.PartType.Cylinder -- Set the shape to Cylinder to make it circular
-        part.Color = Color3.new(1, 1, 0) -- Set color to yellow (change as needed)
-        part.Anchored = true -- Make sure the part doesn't fall
-        part.CanCollide = false -- Prevent it from blocking movement
-        part.Position = Vector3.new(0.8385264873504639, -200.213294982910156, -33.203948974609375) -- Set the position
-    
-        part.Parent = workspace -- Parent the part to the Workspace
-    
-        -- Create a Highlight object
-        local highlight = Instance.new("Highlight")
-        highlight.Parent = part -- Parent the highlight to the part
-        highlight.FillColor = Color3.new(1, 1, 0) -- Highlight color (yellow)
-        highlight.OutlineColor = Color3.new(1, 0, 0) -- Outline color (red, change as needed)
-        highlight.FillTransparency = 0.5 -- Adjust fill transparency (0 for solid, 1 for invisible)
-        highlight.OutlineTransparency = 0 -- Set outline transparency (0 for visible, 1 for invisible)
-    end
-    
-    createCirclePart()    
-end)
-
-UtilitiesSec:AddButton("FARM 2",function()
+UtilitiesSec:AddButton("AUTOFARM",function()
     local player = game.Players.LocalPlayer
+local targetCFrame = CFrame.new(7.8809042, -114.046158, 3988.00903, 0.999975383, -3.40917055e-08, -0.00701921014, 3.42351036e-08, 1, 2.03091801e-08, 0.00701921014, -2.0548983e-08, 0.999975383)
 
-local function setYPosition(character)
-    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-    local newY = -200 -- Desired Y position
+local teleportEnabled = true  -- Set to true to enable teleportation, false to disable
 
-    while character and character:FindFirstChild("HumanoidRootPart") do
-        -- Continuously set the Y position to newY while the character exists
-        humanoidRootPart.CFrame = CFrame.new(humanoidRootPart.Position.X, newY, humanoidRootPart.Position.Z)
-        wait(0.1) -- Small delay to prevent overloading
+-- Function to teleport the player
+local function teleportPlayer()
+    if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+        player.Character.HumanoidRootPart.CFrame = targetCFrame
     end
 end
 
--- Listen for character respawn
-player.CharacterAdded:Connect(function(newCharacter)
-    setYPosition(newCharacter)
-end)
-
--- Initial character setup
-local initialCharacter = player.Character or player.CharacterAdded:Wait()
-setYPosition(initialCharacter)
-end)
-
-UtilitiesSec:AddButton("FARM 3",function()
-    local player = game.Players.LocalPlayer
-local speed = 70 -- Set speed to 70
-local moving = true -- Set this to true to start moving
-
--- Function to move towards the Bonus part
-local function moveToBonusPart()
-    while wait(0.1) do
-        local character = player.Character or player.CharacterAdded:Wait() -- Wait for character to load
-        local targetPart = workspace:FindFirstChild("Bonus") -- Get the part named "Bonus"
-
-        if targetPart and moving and character:FindFirstChild("HumanoidRootPart") then
-            local targetPosition = targetPart.Position
-            local characterPosition = character.HumanoidRootPart.Position
-            
-            -- Calculate the direction and new position
-            local direction = (targetPosition - characterPosition).unit
-            local newPosition = characterPosition + (direction * speed * 0.1) -- Move based on speed
-            
-            -- Update the character's position
-            character:SetPrimaryPartCFrame(CFrame.new(newPosition))
-        end
-    end
-end
-
--- Function to handle player respawn
-local function onPlayerRespawn()
-    wait(1) -- Wait for the character to fully load
-    moveToBonusPart() -- Restart the movement loop
-end
-
--- Start the movement loop when the script runs for the first time
-moveToBonusPart()
-
--- Connect to the Player's CharacterAdded event to handle respawn
-player.CharacterAdded:Connect(onPlayerRespawn)
-    
-
-end)
-
-UtilitiesSec:AddButton("FARM 3 MAIN",function()
-    local player = game.Players.LocalPlayer
-    local speed = 40 -- Set speed to 70
-    local moving = true -- Set this to true to start moving
-    
-    -- Function to move towards the Bonus part
-    local function moveToBonusPart()
-        while wait(0.1) do
-            local character = player.Character or player.CharacterAdded:Wait() -- Wait for character to load
-            local targetPart = workspace:FindFirstChild("Bonus") -- Get the part named "Bonus"
-    
-            if targetPart and moving and character:FindFirstChild("HumanoidRootPart") then
-                local targetPosition = targetPart.Position
-                local characterPosition = character.HumanoidRootPart.Position
-                
-                -- Calculate the direction and new position
-                local direction = (targetPosition - characterPosition).unit
-                local newPosition = characterPosition + (direction * speed * 0.1) -- Move based on speed
-                
-                -- Update the character's position
-                character:SetPrimaryPartCFrame(CFrame.new(newPosition))
-            end
-        end
-    end
-    
-    -- Function to handle player respawn
-    local function onPlayerRespawn()
-        wait(1) -- Wait for the character to fully load
-        moveToBonusPart() -- Restart the movement loop
-    end
-    
-    -- Start the movement loop when the script runs for the first time
-    moveToBonusPart()
-    
-    -- Connect to the Player's CharacterAdded event to handle respawn
-    player.CharacterAdded:Connect(onPlayerRespawn)
-end)
-
-UtilitiesSec:AddButton("reset60sec",function()
-    local player = game.Players.LocalPlayer
-
+-- Teleport loop, runs only if teleportEnabled is true
 while true do
-    -- Set the player's health to 0
-    player.Character.Humanoid.Health = 0
+    if teleportEnabled then
+        teleportPlayer()
+    end
+    task.wait(0.3)  -- Adjust the wait time to control teleport frequency
+end 
+end)
+
+UtilitiesSec:AddButton("Spin",function()
+    local player = game.Players.LocalPlayer
+local runService = game:GetService("RunService")
+
+local spinSpeed = 1 -- Set the desired spin speed (degrees per frame)
+local spinning = false
+
+-- Function to handle spinning
+local function spinCharacter()
+    local character = player.Character or player.CharacterAdded:Wait()
     
-    -- Wait for 60 seconds before running the script again
-    task.wait(60)
+    -- Get the HumanoidRootPart
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+    -- Spin loop
+    while spinning do
+        if humanoidRootPart then
+            humanoidRootPart.CFrame = humanoidRootPart.CFrame * CFrame.Angles(0, math.rad(spinSpeed), 0)
+        end
+        runService.RenderStepped:Wait()
+    end
 end
+
+-- Function to start spinning
+local function startSpinning()
+    spinning = true
+    spinCharacter() -- Start the spin loop
+end
+
+-- Function to stop spinning
+local function stopSpinning()
+    spinning = false
+end
+
+-- Function to handle character added
+local function onCharacterAdded(character)
+    -- Ensure we stop any existing spin before starting a new one
+    stopSpinning()
+    wait(0.1) -- Small delay for stability
+    startSpinning()
+    
+    -- Connect to the humanoid's Died event to stop spinning
+    local humanoid = character:WaitForChild("Humanoid")
+    humanoid.Died:Connect(function()
+        stopSpinning()
+        character:Destroy() -- Optional: Clean up character
+    end)
+end
+
+-- Connect events
+player.CharacterAdded:Connect(onCharacterAdded)
+
+-- Start spinning if character exists
+if player.Character then
+    onCharacterAdded(player.Character)
+end
+
+-- Function to set the spin speed (adjustable)
+local function setSpinSpeed(newSpeed)
+    spinSpeed = newSpeed
+end
+
+-- Example: Change the spin speed if needed
+setSpinSpeed(1) -- Adjust the speed here (degrees per frame)
+
 
 end)
 
